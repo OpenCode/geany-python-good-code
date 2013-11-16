@@ -49,6 +49,33 @@ static void load_settings(void)
     g_key_file_free(config);
 }
 
+static void save_settings(void)
+{
+    GKeyFile *config = g_key_file_new();
+    gchar *data;
+    gchar *config_dir = g_path_get_dirname(config_file);
+
+    g_key_file_load_from_file(config, config_file, G_KEY_FILE_NONE, NULL);
+
+    g_key_file_set_string(config, "python-good-code", "website", software_path);
+
+    if (! g_file_test(config_dir, G_FILE_TEST_IS_DIR) && utils_mkdir(config_dir, TRUE) != 0)
+    {
+        dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+                            _("Plugin configuration directory could not be created."));
+    }
+    else
+    {
+        data = g_key_file_to_data(config, NULL, NULL);
+        utils_write_file(config_file, data);
+        g_free(data);
+    }
+    
+    g_free(config_dir);
+    g_key_file_free(config);
+}
+
+
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
     // Init values
@@ -113,6 +140,7 @@ static void on_configure_response(GtkDialog *dialog, gint response, gpointer use
             g_free(software_path);
             software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
             /**** TODO : Save the current software path in a config file ****/
+            save_settings();
         }
 }
 

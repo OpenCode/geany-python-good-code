@@ -5,7 +5,7 @@
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation; either version 3 of the License, or
  *      (at your option) any later version.
  *
  *      This program is distributed in the hope that it will be useful,
@@ -34,7 +34,14 @@ static gchar *software_path = NULL;
 
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
-    dialogs_show_msgbox(GTK_MESSAGE_INFO, "Test");
+    // Get actual document object
+    GeanyDocument *doc = NULL;
+    doc = document_get_current();
+    if (doc->real_path == NULL)
+    {
+        dialogs_show_save_as();
+    }
+    printf("Nome Documento: %s\n", doc->file_name);
 }
 
 void plugin_init(GeanyData *data)
@@ -62,14 +69,9 @@ static void on_configure_response(GtkDialog *dialog, gint response, gpointer use
         {
                 /* We only have one pref here, but for more you would use a struct for user_data */
                 GtkWidget *entry_software_path = GTK_WIDGET(user_data);
-
                 g_free(software_path);
                 software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
-                /* maybe the plugin should write here the settings into a file
-                 * (e.g. using GLib's GKeyFile API)
-                 * all plugin specific files should be created in:
-                 * geany->app->configdir G_DIR_SEPARATOR_S plugins G_DIR_SEPARATOR_S pluginname G_DIR_SEPARATOR_S
-                 * e.g. this could be: ~/.config/geany/plugins/Demo/, please use geany->app->configdir */
+                /**** TODO : Save the current software path in a config file ****/
         }
 }
 

@@ -37,10 +37,13 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
     // Get actual document object
     GeanyDocument *doc = NULL;
     doc = document_get_current();
+    // If the file is a draft call save file dialog
     if (doc->real_path == NULL)
     {
         dialogs_show_save_as();
     }
+    // save the file to validate it
+    document_save_file(doc, FALSE);
     printf("Nome Documento: %s\n", doc->file_name);
 }
 

@@ -57,7 +57,7 @@ static void save_settings(void)
 
     g_key_file_load_from_file(config, config_file, G_KEY_FILE_NONE, NULL);
 
-    g_key_file_set_string(config, "python-good-code", "website", software_path);
+    g_key_file_set_string(config, "python-good-code", "command", software_path);
 
     if (! g_file_test(config_dir, G_FILE_TEST_IS_DIR) && utils_mkdir(config_dir, TRUE) != 0)
     {

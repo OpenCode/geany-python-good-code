@@ -26,25 +26,46 @@ GeanyFunctions      *geany_functions;
 
 PLUGIN_VERSION_CHECK(211)
 
-PLUGIN_SET_INFO("Python Good Code", "A plugin to pass your code to some tool as pep8, flake8 and others",
-                "1.0", "Francesco OpenCode Apruzzese <opencode@e-ware.org>");
+PLUGIN_SET_INFO("Python Good Code",
+                "A plugin to pass your code to some tool as pep8, flake8 and others",
+                "1.0",
+                "Francesco OpenCode Apruzzese <opencode@e-ware.org>");
 
 static GtkWidget *pgc_main_menu_item = NULL;
 static gchar *software_path = NULL;
 
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
-    // Get actual document object
+    // Init values
     GeanyDocument *doc = NULL;
+    GError *error = NULL;
+    gchar *command = NULL;
+
+    // Get actual document object
     doc = document_get_current();
     // If the file is a draft call save file dialog
     if (doc->real_path == NULL)
     {
         dialogs_show_save_as();
     }
-    // save the file to validate it
+    // Save the file to validate it
     document_save_file(doc, FALSE);
-    printf("Nome Documento: %s\n", doc->file_name);
+    if (software_path == NULL) {
+        ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
+        return;
+    }
+    // Create a command and launch it!
+    command = g_strconcat(software_path, " ", doc->file_name, NULL);
+    g_spawn_command_line_async(command, &error);
+    // Check error
+    if (error != NULL)
+    {
+        ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
+        g_error_free(error);
+    }
+    // Good!
+    ui_set_statusbar(FALSE, "Control on the code executed!");
+
 }
 
 void plugin_init(GeanyData *data)
@@ -86,7 +107,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
     vbox = gtk_vbox_new(FALSE, 6);
 
     /* add a label and a text entry to the dialog */
-    lbl_software_path = gtk_label_new(_("Control Software Path:"));
+    lbl_software_path = gtk_label_new(_("Control Software Command:"));
     gtk_misc_set_alignment(GTK_MISC(lbl_software_path), 0, 0.5);
     entry_software_path = gtk_entry_new();
     if (software_path != NULL)

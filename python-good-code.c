@@ -18,6 +18,10 @@
  *      MA 02110-1301, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
 #include <geanyplugin.h>
 
 GeanyPlugin         *geany_plugin;
@@ -31,8 +35,19 @@ PLUGIN_SET_INFO("Python Good Code",
                 "1.0",
                 "Francesco OpenCode Apruzzese <opencode@e-ware.org>");
 
+static gchar *config_file = NULL;
 static GtkWidget *pgc_main_menu_item = NULL;
 static gchar *software_path = NULL;
+
+static void load_settings(void)
+{
+    GKeyFile *config = g_key_file_new();
+    config_file = g_strconcat(geany->app->configdir, G_DIR_SEPARATOR_S, "plugins", G_DIR_SEPARATOR_S,
+                              "python-good-code", G_DIR_SEPARATOR_S, "python-good-code.conf", NULL);
+    g_key_file_load_from_file(config, config_file, G_KEY_FILE_NONE, NULL);
+    software_path = utils_get_setting_string(config, "python-good-code", "command", "flake8");
+    g_key_file_free(config);
+}
 
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
@@ -65,6 +80,7 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
     }
     // Good!
     ui_set_statusbar(FALSE, "Control on the code executed!");
+    g_free(command);
 
 }
 
@@ -84,6 +100,7 @@ void plugin_init(GeanyData *data)
     ui_add_document_sensitive(pgc_menu_item);
     /* keep a pointer to the menu item, so we can remove it when the plugin is unloaded */
     pgc_main_menu_item = pgc_menu_item;
+    load_settings();
 }
 
 static void on_configure_response(GtkDialog *dialog, gint response, gpointer user_data)
@@ -91,11 +108,11 @@ static void on_configure_response(GtkDialog *dialog, gint response, gpointer use
         /* catch OK or Apply clicked */
         if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
         {
-                /* We only have one pref here, but for more you would use a struct for user_data */
-                GtkWidget *entry_software_path = GTK_WIDGET(user_data);
-                g_free(software_path);
-                software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
-                /**** TODO : Save the current software path in a config file ****/
+            /* We only have one pref here, but for more you would use a struct for user_data */
+            GtkWidget *entry_software_path = GTK_WIDGET(user_data);
+            g_free(software_path);
+            software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
+            /**** TODO : Save the current software path in a config file ****/
         }
 }
 

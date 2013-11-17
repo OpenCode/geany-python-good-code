@@ -41,6 +41,10 @@ static gchar *software_path = NULL;
 
 static void load_settings(void)
 {
+    /* 
+     * Function used to load the plugin settings in the configuration file
+     * The file is hosted in USER_HOME/.config/geany/python-good-code/python-good-code.conf
+     * */
     GKeyFile *config = g_key_file_new();
     config_file = g_strconcat(geany->app->configdir, G_DIR_SEPARATOR_S, "plugins", G_DIR_SEPARATOR_S,
                               "python-good-code", G_DIR_SEPARATOR_S, "python-good-code.conf", NULL);
@@ -51,6 +55,10 @@ static void load_settings(void)
 
 static void save_settings(void)
 {
+    /* 
+     * Function used to store the plugin settings in the configuration file
+     * The file is hosted in USER_HOME/.config/geany/python-good-code/python-good-code.conf
+     * */
     GKeyFile *config = g_key_file_new();
     gchar *data;
     gchar *config_dir = g_path_get_dirname(config_file);
@@ -75,57 +83,65 @@ static void save_settings(void)
     g_key_file_free(config);
 }
 
-
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
-    // Init values
+    /* 
+     * Function called on menu click
+     * */
+    /* Init values */
     GeanyDocument *doc = NULL;
-    GError *error = NULL;
     gchar *command = NULL;
+    gchar *command_error = NULL;
+    gchar *command_output = NULL;
+    gboolean result;
 
-    // Get actual document object
+    /* Get actual document object */
     doc = document_get_current();
-    // If the file is a draft call save file dialog
+    /* If the file is a draft call save file dialog */
     if (doc->real_path == NULL)
     {
         dialogs_show_save_as();
     }
-    // Save the file to validate it
+    /* Save the file to validate it */
     document_save_file(doc, FALSE);
     if (software_path == NULL) {
         ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
         return;
     }
-    // Create a command and launch it!
+    /* Create a command and launch it! */
     command = g_strconcat(software_path, " ", doc->file_name, NULL);
-    g_spawn_command_line_async(command, &error);
-    // Check error
-    if (error != NULL)
+    result = g_spawn_command_line_sync(command, &command_output, &command_error, NULL, NULL);
+    /* Check error */
+    if (result)
     {
-        ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
-        g_error_free(error);
+        /* Good!*/
+        ui_set_statusbar(FALSE, "Control on the code executed!");
+        msgwin_clear_tab(MSG_COMPILER);
+        msgwin_compiler_add(COLOR_BLACK, "%s", command_output);
+        msgwin_switch_tab(MSG_COMPILER, TRUE);
     }
-    // Good!
-    ui_set_statusbar(FALSE, "Control on the code executed!");
+    else {
+        /* Bad! */
+        ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
+    }
     g_free(command);
 
 }
 
 void plugin_init(GeanyData *data)
 {
-
-    // Create menu object
+    /* Create menu object */
     GtkWidget *pgc_menu_item;
     pgc_menu_item = gtk_menu_item_new_with_mnemonic("Python Good Code");
     gtk_widget_show(pgc_menu_item);
     gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu),
         pgc_menu_item);
-    // Connect menu to signal
+    /* Connect menu to signal */
     g_signal_connect(pgc_menu_item, "activate",
         G_CALLBACK(item_activate_cb), NULL);
-    /* make the menu item sensitive only when documents are open */
+    /* Make the menu item sensitive only when documents are open */
     ui_add_document_sensitive(pgc_menu_item);
-    /* keep a pointer to the menu item, so we can remove it when the plugin is unloaded */
+    /* Keep a pointer to the menu item, so we can remove it when the plugin is unloaded */
     pgc_main_menu_item = pgc_menu_item;
     load_settings();
 }
@@ -139,7 +155,6 @@ static void on_configure_response(GtkDialog *dialog, gint response, gpointer use
             GtkWidget *entry_software_path = GTK_WIDGET(user_data);
             g_free(software_path);
             software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
-            /**** TODO : Save the current software path in a config file ****/
             save_settings();
         }
 }

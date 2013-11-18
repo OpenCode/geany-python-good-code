@@ -93,6 +93,8 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
     gchar *command = NULL;
     gchar *command_error = NULL;
     gchar *command_output = NULL;
+    gchar **command_output_lines;
+    gint i = 0;
     gboolean result;
 
     /* Get actual document object */
@@ -115,10 +117,15 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
     if (result)
     {
         /* Good!*/
+        msgwin_clear_tab(MSG_MESSAGE);
+        /* Split command result in lines and show them one per one in message tab */
+        command_output_lines = g_strsplit_set(command_output, "\n", -1);
+        for(i = 0; i < g_strv_length(command_output_lines); i++){
+            msgwin_msg_add(COLOR_BLACK, -1, doc, "%s", command_output_lines[i]);
+        }
+        msgwin_switch_tab(MSG_MESSAGE, TRUE);
+        g_strfreev(command_output_lines);
         ui_set_statusbar(FALSE, "Control on the code executed!");
-        msgwin_clear_tab(MSG_COMPILER);
-        msgwin_compiler_add(COLOR_BLACK, "%s", command_output);
-        msgwin_switch_tab(MSG_COMPILER, TRUE);
     }
     else {
         /* Bad! */

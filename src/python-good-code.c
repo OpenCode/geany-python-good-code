@@ -38,6 +38,13 @@ PLUGIN_SET_INFO("Python Good Code",
 static gchar *config_file = NULL;
 static GtkWidget *pgc_main_menu_item = NULL;
 static gchar *software_path = NULL;
+static gboolean generate_report = FALSE;
+
+static struct
+{
+    GtkWidget *entry_software_path, *checkbox_generate_report;
+}
+config_widgets;
 
 static void load_settings(void)
 {
@@ -50,6 +57,7 @@ static void load_settings(void)
                               "python-good-code", G_DIR_SEPARATOR_S, "python-good-code.conf", NULL);
     g_key_file_load_from_file(config, config_file, G_KEY_FILE_NONE, NULL);
     software_path = utils_get_setting_string(config, "python-good-code", "command", "flake8");
+    generate_report = utils_get_setting_boolean(config, "python-good-code", "generate-report", FALSE);
     g_key_file_free(config);
 }
 
@@ -66,6 +74,7 @@ static void save_settings(void)
     g_key_file_load_from_file(config, config_file, G_KEY_FILE_NONE, NULL);
 
     g_key_file_set_string(config, "python-good-code", "command", software_path);
+    g_key_file_set_boolean(config, "python-good-code", "generate-report", generate_report);
 
     if (! g_file_test(config_dir, G_FILE_TEST_IS_DIR) && utils_mkdir(config_dir, TRUE) != 0)
     {
@@ -116,19 +125,25 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
     /* Check error */
     if (result)
     {
-        /* Good!*/
-        msgwin_clear_tab(MSG_MESSAGE);
-        /* Split command result in lines and show them one per one in message tab */
-        command_output_lines = g_strsplit_set(command_output, "\n", -1);
-        for(i = 0; i < g_strv_length(command_output_lines); i++){
-            msgwin_msg_add(COLOR_BLACK, -1, doc, "%s", command_output_lines[i]);
+        if (generate_report)
+        {
+            /* Generate report file*/
+            document_new_file("code_control_report", NULL, command_output);
+        } 
+        else
+        {
+            msgwin_clear_tab(MSG_MESSAGE);
+            /* Split command result in lines and show them one per one in message tab */
+            command_output_lines = g_strsplit_set(command_output, "\n", -1);
+            for(i = 0; i < g_strv_length(command_output_lines); i++){
+                msgwin_msg_add(COLOR_BLACK, -1, doc, "%s", command_output_lines[i]);
+            }
+            msgwin_switch_tab(MSG_MESSAGE, TRUE);
+            g_strfreev(command_output_lines);
         }
-        msgwin_switch_tab(MSG_MESSAGE, TRUE);
-        g_strfreev(command_output_lines);
         ui_set_statusbar(FALSE, "Control on the code executed!");
     }
     else {
-        /* Bad! */
         ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
     }
     g_free(command);
@@ -142,10 +157,10 @@ void plugin_init(GeanyData *data)
     pgc_menu_item = gtk_menu_item_new_with_mnemonic("Python Good Code");
     gtk_widget_show(pgc_menu_item);
     gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu),
-        pgc_menu_item);
+                                    pgc_menu_item);
     /* Connect menu to signal */
     g_signal_connect(pgc_menu_item, "activate",
-        G_CALLBACK(item_activate_cb), NULL);
+                     G_CALLBACK(item_activate_cb), NULL);
     /* Make the menu item sensitive only when documents are open */
     ui_add_document_sensitive(pgc_menu_item);
     /* Keep a pointer to the menu item, so we can remove it when the plugin is unloaded */
@@ -158,35 +173,41 @@ static void on_configure_response(GtkDialog *dialog, gint response, gpointer use
         /* catch OK or Apply clicked */
         if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
         {
-            /* We only have one pref here, but for more you would use a struct for user_data */
-            GtkWidget *entry_software_path = GTK_WIDGET(user_data);
             g_free(software_path);
-            software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_software_path)));
+            software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(config_widgets.entry_software_path)));
+            generate_report = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(config_widgets.checkbox_generate_report));
             save_settings();
         }
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)
 {
-    GtkWidget *lbl_software_path, *entry_software_path, *vbox;
+    GtkWidget *lbl_software_path, *vbox;
 
     /* example configuration dialog */
     vbox = gtk_vbox_new(FALSE, 6);
 
-    /* add a label and a text entry to the dialog */
+    /* create setting widgets */
     lbl_software_path = gtk_label_new(_("Control Software Command:"));
     gtk_misc_set_alignment(GTK_MISC(lbl_software_path), 0, 0.5);
-    entry_software_path = gtk_entry_new();
+    config_widgets.entry_software_path = gtk_entry_new();
+    config_widgets.checkbox_generate_report = gtk_check_button_new_with_label(_("Generate Report File:"));
+    
+    /* set widgets init values */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(config_widgets.checkbox_generate_report), generate_report);
     if (software_path != NULL)
-            gtk_entry_set_text(GTK_ENTRY(entry_software_path), software_path);
+        gtk_entry_set_text(GTK_ENTRY(config_widgets.entry_software_path), software_path);
 
+    /* Create dialog structure */
     gtk_container_add(GTK_CONTAINER(vbox), lbl_software_path);
-    gtk_container_add(GTK_CONTAINER(vbox), entry_software_path);
+    gtk_container_add(GTK_CONTAINER(vbox), config_widgets.entry_software_path);
+    gtk_container_add(GTK_CONTAINER(vbox), config_widgets.checkbox_generate_report);
 
     gtk_widget_show_all(vbox);
 
     /* Connect a callback for when the user clicks a dialog button */
-    g_signal_connect(dialog, "response", G_CALLBACK(on_configure_response), entry_software_path);
+    g_signal_connect(dialog, "response", G_CALLBACK(on_configure_response), config_widgets.entry_software_path);
+    g_signal_connect(dialog, "response", G_CALLBACK(on_configure_response), config_widgets.checkbox_generate_report);
     return vbox;
 }
 

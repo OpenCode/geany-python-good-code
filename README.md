@@ -7,9 +7,9 @@ Actually tested only for GNU/Linux (What? There are other operating systems? Rea
 
 ## Features
 
-* 1-Click use! No terminal. No external software. Only your editor, you and you coffee
-* Dynamic definition of tools to use in
-* Create report file of tool response
+* 1-Click use! No terminal. No external software. Only your editor, you and your coffee
+* Dynamic definition of tools to use
+* Create report file from tool result
 
 ## News
 

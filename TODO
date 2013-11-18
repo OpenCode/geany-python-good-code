@@ -1,3 +1,4 @@
 
     * Possibility to set the compiler message text color in plugin settings
     * Show the output lines ad line per line in th message tab
+    * Possibility to set if the result must be saved in a new file (report generator)

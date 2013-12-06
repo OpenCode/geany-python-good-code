@@ -46,6 +46,13 @@ static struct
 }
 config_widgets;
 
+/* Doing some basic keybinding stuff */
+enum
+{
+    PYTHON_GOOD_CODE_MENU,
+    COUNT_KB
+};
+
 static void load_settings(void)
 {
     /* 
@@ -150,10 +157,19 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 
 }
 
+/* Called when keystroke were pressed */
+static void kb_python_good_code_insert(G_GNUC_UNUSED guint key_id)
+{
+        item_activate_cb(NULL, NULL);
+}
+
 void plugin_init(GeanyData *data)
 {
-    /* Create menu object */
+    /* Init */
+    GeanyKeyGroup *key_group;
     GtkWidget *pgc_menu_item;
+
+    /* Create menu */
     pgc_menu_item = gtk_menu_item_new_with_mnemonic("Python Good Code");
     gtk_widget_show(pgc_menu_item);
     gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu),
@@ -165,6 +181,11 @@ void plugin_init(GeanyData *data)
     ui_add_document_sensitive(pgc_menu_item);
     /* Keep a pointer to the menu item, so we can remove it when the plugin is unloaded */
     pgc_main_menu_item = pgc_menu_item;
+
+    /* init keybindings */
+    key_group = plugin_set_key_group(geany_plugin, "python-good-code", COUNT_KB, NULL);
+    keybindings_set_item(key_group, PYTHON_GOOD_CODE_MENU, kb_python_good_code_insert,
+            0, 0, "python-good-code", _("Launch Python Analysis Tool"), pgc_main_menu_item);
     load_settings();
 }
 

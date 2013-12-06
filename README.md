@@ -13,6 +13,10 @@ Actually tested only for GNU/Linux (What? There are other operating systems? Rea
 
 ## News
 
+### 2013-12-06
+
+Configurable keyboard shortcut
+
 ### 2013-11-18
 
 Added the possibility to generate the report from tool response as new file

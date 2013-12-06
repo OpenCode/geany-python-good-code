@@ -1,4 +1,6 @@
 ############################
+# INSTALLATION
+############################
 
 - Download the branch from github page:
 
@@ -11,3 +13,15 @@
     $ gcc -c python-good-code.c -fPIC `pkg-config --cflags geany` 
     $ gcc python-good-code.o -o python-good-code.so -shared `pkg-config --libs geany` 
     $ cp python-good-code.so GEANY_PLUGIN_PATH/python-good-code.so
+
+############################
+# CONFIGURATION
+############################
+
+- Set Keyboard Shortcut
+
+    Menu -> Preference (or CTRL-ALT-P)
+    In the window select tab 'Keyboard Shortcut'
+    Go to 'Python Good Code' line
+    Double click on 'Launch Python Analisys Tool'
+    Press your favorite keys on the keyboaad

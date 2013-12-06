@@ -20,3 +20,7 @@ Added the possibility to generate the report from tool response as new file
 ### 2013-11-17
 
 Plugin first release
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/OpenCode/geany-python-good-code/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+

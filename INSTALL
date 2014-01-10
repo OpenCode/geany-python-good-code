@@ -9,10 +9,20 @@
 
 - Move in plugin path and compile it:
 
-    $ cd geany-python-good-code/src
-    $ gcc -c python-good-code.c -fPIC `pkg-config --cflags geany` 
-    $ gcc python-good-code.o -o python-good-code.so -shared `pkg-config --libs geany` 
-    $ cp python-good-code.so GEANY_PLUGIN_PATH/python-good-code.so
+    $ cd geany-python-good-code
+    $ make init
+    $ make install
+    this command pesume that you plaging path is place in
+    /usr/lib/ARCH-linux-gnu/geany/
+
+    if you want install in a specify path
+
+    $ make install GEANY_PATH=path/that/you/want
+
+    if you want clean all
+
+    $ make clean [optional GEANY_PATH=path/that/you/want]
+
 
 ############################
 # CONFIGURATION

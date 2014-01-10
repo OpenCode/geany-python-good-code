@@ -12,6 +12,9 @@ Actually tested only for GNU/Linux (What? There are other operating systems? Rea
 * Create report file from tool result
 
 ## News
+### 2013-01-09
+
+Adding Makefile
 
 ### 2013-12-06
 

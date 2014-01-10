@@ -55,7 +55,7 @@ enum
 
 static void load_settings(void)
 {
-    /* 
+    /*
      * Function used to load the plugin settings in the configuration file
      * The file is hosted in USER_HOME/.config/geany/python-good-code/python-good-code.conf
      * */
@@ -70,7 +70,7 @@ static void load_settings(void)
 
 static void save_settings(void)
 {
-    /* 
+    /*
      * Function used to store the plugin settings in the configuration file
      * The file is hosted in USER_HOME/.config/geany/python-good-code/python-good-code.conf
      * */
@@ -94,14 +94,14 @@ static void save_settings(void)
         utils_write_file(config_file, data);
         g_free(data);
     }
-    
+
     g_free(config_dir);
     g_key_file_free(config);
 }
 
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 {
-    /* 
+    /*
      * Function called on menu click
      * */
     /* Init values */
@@ -136,7 +136,7 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
         {
             /* Generate report file*/
             document_new_file("code_control_report", NULL, command_output);
-        } 
+        }
         else
         {
             msgwin_clear_tab(MSG_MESSAGE);
@@ -213,7 +213,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
     gtk_misc_set_alignment(GTK_MISC(lbl_software_path), 0, 0.5);
     config_widgets.entry_software_path = gtk_entry_new();
     config_widgets.checkbox_generate_report = gtk_check_button_new_with_label(_("Generate Report File:"));
-    
+
     /* set widgets init values */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(config_widgets.checkbox_generate_report), generate_report);
     if (software_path != NULL)

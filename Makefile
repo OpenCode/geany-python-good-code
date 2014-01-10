@@ -27,5 +27,5 @@ install:
 clean:
 	rm -rf $(OBJ)
 	rm -rf $(SOBJ)
-	rm /usr/lib/$(ARCH)-linux-gnu/geany/$(SOBJ)
+	rm  $(GPATH)/$(SOBJ
 

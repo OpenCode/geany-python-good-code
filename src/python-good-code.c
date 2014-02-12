@@ -151,7 +151,7 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
         ui_set_statusbar(FALSE, "Control on the code executed!");
     }
     else {
-        ui_set_statusbar(FALSE, "Could not execute control on the code. Please check your configuration.");
+        ui_set_statusbar(FALSE, "Could not execute control on the code. No result from check software.");
     }
     g_free(command);
 
@@ -160,7 +160,7 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 /* Called when keystroke were pressed */
 static void kb_python_good_code_insert(G_GNUC_UNUSED guint key_id)
 {
-        item_activate_cb(NULL, NULL);
+    item_activate_cb(NULL, NULL);
 }
 
 void plugin_init(GeanyData *data)
@@ -191,14 +191,14 @@ void plugin_init(GeanyData *data)
 
 static void on_configure_response(GtkDialog *dialog, gint response, gpointer user_data)
 {
-        /* catch OK or Apply clicked */
-        if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
-        {
-            g_free(software_path);
-            software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(config_widgets.entry_software_path)));
-            generate_report = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(config_widgets.checkbox_generate_report));
-            save_settings();
-        }
+    /* catch OK or Apply clicked */
+    if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
+    {
+        g_free(software_path);
+        software_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(config_widgets.entry_software_path)));
+        generate_report = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(config_widgets.checkbox_generate_report));
+        save_settings();
+    }
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)

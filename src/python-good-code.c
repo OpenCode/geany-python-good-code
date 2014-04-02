@@ -127,7 +127,7 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
         return;
     }
     /* Create a command and launch it! */
-    command = g_strconcat(software_path, " ", doc->file_name, NULL);
+    command = g_strconcat(software_path, " ", "'", doc->file_name, "'", NULL);
     result = g_spawn_command_line_sync(command, &command_output, &command_error, NULL, NULL);
     /* Check error */
     if (result)
